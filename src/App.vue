@@ -5,6 +5,7 @@
     <nav class="global-nav">
       <router-link to="/" class="nav-link">首页</router-link>
       <router-link to="/about" class="nav-link">关于</router-link>
+      <router-link to="/ledger" class="nav-link">账本</router-link>
     </nav>
 
     <!-- 主要内容 -->

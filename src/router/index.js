@@ -7,6 +7,11 @@ const routes = [
     name: 'home',
     component: () => import('@/views/Home.vue'),
   },
+  {
+    path: '/ledger',
+    name: 'ledger',
+    component: () => import('@/views/LedgerPage.vue'),
+  },
 ]
 
 // 创建路由实例
