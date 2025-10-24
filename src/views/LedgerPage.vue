@@ -44,13 +44,10 @@
         <!-- 时间 -->
         <div class="form-group">
           <label>时间</label>
-          <VueDatePicker
+          <input
             v-model="form.time"
-            model-type="timestamp"
-            format="YYYY-MM-DD HH:mm"
-            :enable-time-picker="true"
-            auto-apply
-            class="ios-datepicker"
+            type="datetime-local"
+            class="ios-input"
           />
         </div>
 
@@ -63,15 +60,20 @@
 
 <script setup>
 import { reactive } from 'vue'
-import VueDatePicker from '@vuepic/vue-datepicker'
-import '@vuepic/vue-datepicker/dist/main.css'
 
 const form = reactive({
   category: '餐饮',
   amount: null,
   note: '',
-  time: Date.now(), // 使用时间戳，兼容 VueDatePicker
+  time: getCurrentDateTimeString() // 设置默认时间为当前时间
 })
+
+// 获取当前时间的字符串格式，用于 datetime-local
+function getCurrentDateTimeString() {
+  const now = new Date()
+  // 转换为 YYYY-MM-DDTHH:mm 格式
+  return now.toISOString().slice(0, 16)
+}
 
 const handleSubmit = () => {
   if (!form.amount || form.amount <= 0) {
