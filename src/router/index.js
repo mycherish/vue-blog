@@ -8,9 +8,14 @@ const routes = [
     component: () => import('@/views/Home.vue'),
   },
   {
-    path: '/ledger',
-    name: 'ledger',
-    component: () => import('@/views/LedgerPage.vue'),
+    path: '/ledger-add',
+    name: 'ledger-add',
+    component: () => import('@/views/LedgerAdd.vue'),
+  },
+  {
+    path: '/ledger-list',
+    name: 'ledger-list',
+    component: () => import('@/views/LedgerList.vue'),
   },
 ]
 

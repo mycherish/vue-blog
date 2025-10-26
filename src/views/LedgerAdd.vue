@@ -1,6 +1,5 @@
 <template>
   <div class="ledger-page">
-    <!-- 模拟液态玻璃卡片 -->
     <div class="glass-card">
       <h2 class="title">记一笔</h2>
 
@@ -44,15 +43,11 @@
         <!-- 时间 -->
         <div class="form-group">
           <label>时间</label>
-          <input
-            v-model="form.time"
-            type="datetime-local"
-            class="ios-input"
-          />
+          <input v-model="form.time" type="datetime-local" class="ios-input" />
         </div>
 
         <!-- 提交按钮 -->
-        <button type="submit" class="ios-button">保存账目</button>
+        <button type="submit" class="ios-button">保存</button>
       </form>
     </div>
   </div>
@@ -60,12 +55,17 @@
 
 <script setup>
 import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import { useLedgerStore } from '@/stores/ledger'
+
+const router = useRouter()
+const ledgerStore = useLedgerStore()
 
 const form = reactive({
   category: '餐饮',
   amount: null,
   note: '',
-  time: getCurrentDateTimeString() // 设置默认时间为当前时间
+  time: getCurrentDateTimeString(), // 设置默认时间为当前时间
 })
 
 // 获取当前时间的字符串格式，用于 datetime-local
@@ -75,13 +75,47 @@ function getCurrentDateTimeString() {
   return now.toISOString().slice(0, 16)
 }
 
+// 处理datetime-local格式，转换为日期和时间
+function parseDateTime(datetimeStr) {
+  const date = new Date(datetimeStr)
+  return {
+    date: date.toISOString().split('T')[0],
+    time: date.toTimeString().slice(0, 5),
+  }
+}
+
 const handleSubmit = () => {
   if (!form.amount || form.amount <= 0) {
     alert('请输入有效金额')
     return
   }
-  console.log('提交账目:', { ...form })
+  // 解析日期时间
+  const { date, time } = parseDateTime(form.time)
+
+  // 准备交易数据
+  const transactionData = {
+    category: form.category,
+    amount: parseFloat(form.amount),
+    note: form.note,
+    date: date,
+    time: time,
+  }
+  // 保存到store
+  ledgerStore.addTransaction(transactionData)
+
+  console.log('提交账目:', transactionData)
   alert('记账成功！')
+
+  // 跳转到列表页面
+  router.push('/ledger-list')
+}
+
+// 重置表单
+const resetForm = () => {
+  form.category = '餐饮'
+  form.amount = null
+  form.note = ''
+  form.time = getCurrentDateTimeString()
 }
 </script>
 
