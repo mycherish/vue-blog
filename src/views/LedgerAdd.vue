@@ -54,9 +54,10 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLedgerStore } from '@/stores/ledger'
+const isSubmitting = ref(false)
 
 const router = useRouter()
 const ledgerStore = useLedgerStore()
@@ -84,30 +85,58 @@ function parseDateTime(datetimeStr) {
   }
 }
 
-const handleSubmit = () => {
+// 增强的表单验证
+function validateForm() {
   if (!form.amount || form.amount <= 0) {
-    alert('请输入有效金额')
+    return '请输入有效金额'
+  }
+
+  if (!form.time) {
+    return '请选择时间'
+  }
+
+  return null
+}
+
+const handleSubmit = () => {
+  if (isSubmitting.value) return
+
+  const error = validateForm()
+  if (error) {
+    alert(error)
     return
   }
-  // 解析日期时间
-  const { date, time } = parseDateTime(form.time)
+  isSubmitting.value = true
+  try {
+    // 解析日期时间
+    const { date, time } = parseDateTime(form.time)
 
-  // 准备交易数据
-  const transactionData = {
-    category: form.category,
-    amount: parseFloat(form.amount),
-    note: form.note,
-    date: date,
-    time: time,
+    // 准备交易数据
+    const transactionData = {
+      category: form.category,
+      amount: parseFloat(form.amount),
+      note: form.note,
+      date: date,
+      time: time,
+    }
+    // 保存到store
+    ledgerStore.addTransaction(transactionData)
+
+    console.log('提交账目:', transactionData)
+
+    // 使用更友好的提示方式
+    if (confirm('记账成功！是否继续记账？')) {
+      resetForm()
+    } else {
+      // 跳转到列表页面
+      router.push('/ledger-list')
+    }
+  } catch (error) {
+    console.error('记账失败:', error)
+    alert('记账失败，请重试')
+  } finally {
+    isSubmitting.value = false
   }
-  // 保存到store
-  ledgerStore.addTransaction(transactionData)
-
-  console.log('提交账目:', transactionData)
-  alert('记账成功！')
-
-  // 跳转到列表页面
-  router.push('/ledger-list')
 }
 
 // 重置表单

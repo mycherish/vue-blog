@@ -59,7 +59,10 @@
 
       <!-- 交易列表 -->
       <div class="transaction-list">
-        <div v-if="groupedTransactions.length === 0" class="empty-state">
+        <div v-if="isLoading" class="loading-state">
+          <p>加载中...</p>
+        </div>
+        <div v-else-if="groupedTransactions.length === 0" class="empty-state">
           <svg
             width="48"
             height="48"
@@ -123,8 +126,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useLedgerStore } from '@/stores/ledger'
+const isLoading = ref(true)
 
 const ledgerStore = useLedgerStore()
 
@@ -135,7 +139,7 @@ const selectedCategory = ref('all')
 // 从store获取交易记录
 // 添加空值检查
 const transactions = computed(() => {
-  const storeTransactions = ledgerStore.getTransactions
+  const storeTransactions = ledgerStore.getTransactions.value
   return Array.isArray(storeTransactions) ? storeTransactions : []
 })
 
@@ -245,6 +249,13 @@ function formatDate(dateStr) {
 function formatTime(timeStr) {
   return timeStr
 }
+// 初始化加载
+onMounted(() => {
+  // 模拟数据加载
+  setTimeout(() => {
+    isLoading.value = false
+  }, 500)
+})
 </script>
 
 <style scoped>
